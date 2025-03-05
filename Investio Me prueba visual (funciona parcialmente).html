@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investio Me</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+	/* Estilos para la historia con burbujas */
+.finn-story-container {
+    position: relative;
+    max-width: 400px;
+    margin: 0 auto;
+    background-color: #f0f9f8;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.story-bubbles {
+    position: relative;
+    height: 250px;
+}
+
+.story-bubble {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    display: flex;
+    align-items: center;
+    padding: 20px;
+}
+
+.story-bubble.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.story-bubble .finn-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-right: 15px;
+    border: 3px solid #2a9d8f;
+}
+
+.story-bubble .dialogue-text {
+    flex: 1;
+    background-color: white;
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.story-navigation {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.story-progress {
+    flex: 1;
+    height: 5px;
+    background-color: #e0e0e0;
+    margin: 0 15px;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.story-progress .progress-bar {
+    height: 100%;
+    width: 0;
+    background-color: #2a9d8f;
+    transition: width 0.3s linear;
+}
+
+.story-prev, .story-next {
+    background-color: rgba(42, 157, 143, 0.1);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.story-prev:hover, .story-next:hover {
+    background-color: rgba(42, 157, 143, 0.2);
+}
+
+        /* General Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body, html {
+            height: 100%;
+            background-color: #eaf4f4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            text-align: center;
+        }
+
+        h1, h2 {
+            color: #2a9d8f;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        p {
+            color: #4a5568;
+            font-size: 0.95em;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            font-size: 1em;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            border-color: #2a9d8f;
+            box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+        }
+
+        button {
+            background-color: #2a9d8f;
+            color: white;
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button:hover {
+            background-color: #218a7e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(42, 157, 143, 0.2);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+
+        a {
+            color: #2a9d8f;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: #218a7e;
+            text-decoration: underline;
+        }
+
+        .button-container button {
+            margin: 12px 0;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .button-container button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .button-container button:hover::before {
+            left: 100%;
+        }
+
+        .finFact-image {
+            width: 80%;
+            max-width: 500px;
+            border-radius: 16px;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .finFact-image:hover {
+            transform: scale(1.02);
+        }
+
+        .back-button {
+            margin-top: 20px;
+            background-color: #718096;
+        }
+
+        .back-button:hover {
+            background-color: #4a5568;
+        }
+
+        .registro-table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .registro-table th, .registro-table td {
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .registro-table th {
+            background-color: #2a9d8f;
+            color: white;
+            font-weight: 600;
+        }
+
+        .registro-table tr:nth-child(even) {
+            background-color: #f7fafc;
+        }
+
+        .logo {
+            width: 220px;
+            margin: 0 auto 24px;
+            display: block;
+            transition: transform 0.3s;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .balance-container {
+            margin: 24px 0;
+            padding: 18px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            border-left: 5px solid #2a9d8f;
+            text-align: left;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+        }
+
+        .balance-container:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        ul {
+            text-align: left;
+            margin-left: 24px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: #4a5568;
+        }
+
+        .mascot {
+            width: 90px;
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .mascot:hover {
+            transform: scale(1.1);
+        }
+
+        .home-container {
+            position: relative;
+            min-height: 580px;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f9f8 100%);
+        }
+
+        .coin-count {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            background-color: #f0f9f8;
+            padding: 10px;
+            border-radius: 50px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+        }
+
+        .coin-count:hover {
+            transform: translateY(-3px);
+        }
+
+        .coin-count img {
+            width: 40px;
+            margin-right: 10px;
+            animation: spin 10s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        .premium-badge {
+            background-color: #ffd166;
+            color: #333;
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 0.75em;
+            margin-left: 10px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Estilos para las burbujas de diálogo de Finn */
+        .finn-dialogue {
+            display: flex;
+            align-items: flex-start;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .finn-avatar {
+            width: 70px;
+            min-width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            margin-right: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: 3px solid #2a9d8f;
+        }
+
+        .dialogue-bubble {
+            background-color: #f0f9f8;
+            border-radius: 18px;
+            padding: 15px;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            max-width: 80%;
+        }
+
+        .dialogue-bubble::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: -12px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-right: 12px solid #f0f9f8;
+        }
+        
+        /* Botones para Aprender con Finn */
+        .learn-with-finn-btn {
+            background-color: #f59e0b;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .learn-with-finn-btn:hover {
+            background-color: #d97706;
+        }
+        
+        .learn-with-finn-btn img {
+            width: 24px;
+            height: 24px;
+            margin-right: 5px;
+        }
+        
+        /* Menú desplegable para módulos */
+        .module-dropdown {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            margin: 12px 0;
+        }
+        
+        .module-dropdown-btn {
+            background-color: #3b82f6;
+            color: white;
+            padding: 12px;
+            width: 100%;
+            border: none;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+        }
+        
+        .module-dropdown-content {
+            display: none;
+            position: relative;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .module-dropdown-content button {
+            color: #4a5568;
+            background-color: white;
+            padding: 12px;
+            text-align: left;
+            text-decoration: none;
+            display: block;
+            border-bottom: 1px solid #f0f4f8;
+            transition: all 0.2s;
+        }
+        
+        .module-dropdown-content button:hover {
+            background-color: #f0f9f8;
+            color: #2a9d8f;
+            transform: translateX(5px);
+        }
+        
+        .show {
+            display: block;
+        }
+        
+        /* Añadimos iconos a los botones */
+        .btn-icon {
+            margin-right: 8px;
+            font-size: 1.2em;
+        }
+        
+        /* Progress cards para la home page */
+        .progress-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .progress-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            width: calc(50% - 10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .progress-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .progress-card h3 {
+            font-size: 0.9em;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+        
+        .progress-card .percentage {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #2a9d8f;
+        }
+        
+        /* Progress bar */
+        .progress-bar-container {
+            width: 100%;
+            height: 10px;
+            background-color: #e2e8f0;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: #2a9d8f;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        
+        /* Animación para los botones de módulos */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .button-container button {
+            animation: fadeIn 0.5s ease forwards;
+            opacity: 0;
+        }
+        
+        .button-container button:nth-child(1) { animation-delay: 0.1s; }
+        .button-container button:nth-child(2) { animation-delay: 0.2s; }
+        .button-container button:nth-child(3) { animation-delay: 0.3s; }
+        .button-container button:nth-child(4) { animation-delay: 0.4s; }
+        .button-container button:nth-child(5) { animation-delay: 0.5s; }
+        .button-container button:nth-child(6) { animation-delay: 0.6s; }
+        .button-container button:nth-child(7) { animation-delay: 0.7s; }
+        
+        /* Estilos para los quizzes */
+        .quiz-btn {
+            text-align: left;
+            justify-content: flex-start;
+            background-color: #f8f9fa;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+            margin: 5px 0;
+        }
+        
+        .quiz-btn:hover {
+            background-color: #f0f9f8;
+            border-color: #2a9d8f;
+        }
+        
+        /* Estilos para los juegos con Finn */
+        .finn-game-container {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        
+        .finn-game-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        
+        .finn-game-header img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #2a9d8f;
+        }
+        
+        .finn-speech-bubble {
+            background-color: #e6f7f5;
+            padding: 15px;
+            border-radius: 18px;
+            margin-left: 15px;
+            position: relative;
+            flex: 1;
+        }
+        
+        .finn-speech-bubble::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: -12px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-right: 12px solid #e6f7f5;
+        }
+        
+        .finn-game-progress {
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .finn-game-progress-bar {
+            height: 100%;
+            background-color: #2a9d8f;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .finn-game-content {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .finn-game-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .finn-game-feedback {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 12px;
+        }
+        
+        .finn-game-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .finn-button {
+            background-color: #f59e0b;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            width: auto;
+        }
+        
+        .finn-button:hover {
+            background-color: #d97706;
+            transform: translateY(-2px);
+        }
+        
+        /* Estilo para resaltar logros desbloqueados */
+        .achievement-unlocked {
+            background-color: #fef3c7;
+            border-left: 5px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .achievement-unlocked img {
+            width: 40px;
+            margin-right: 15px;
+        }
+        
+        /* Estilo para notificaciones */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #2a9d8f;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            animation: fadeInOut 3s forwards;
+            display: flex;
+            align-items: center;
+        }
+        
+        .notification img {
+            width: 24px;
+            margin-right: 10px;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(-20px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+        
+        /* Añadimos algunos estilos de confeti para celebraciones */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #ffd166;
+            animation: confetti-fall 3s linear forwards;
+            z-index: 9999;
+        }
+        
+        @keyframes confetti-fall {
+            0% { 
+                transform: translateY(-100px) rotate(0deg); 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translateY(100vh) rotate(720deg); 
+                opacity: 0; 
+            }
+        }
+	/* Estilos para mejorar la visualización de FinFacts */
+.container {
+    min-height: 600px; /* Aumentar altura mínima */
+    height: auto; /* Permitir que crezca según el contenido */
+    overflow-y: auto; /* Añadir scroll vertical si es necesario */
+    display: flex;
+    flex-direction: column;
+}
+
+.finFact-image {
+    max-height: 250px; /* Limitar altura de la imagen */
+    width: 100%; /* Ajustar ancho */
+    object-fit: contain; /* Mantener proporción de la imagen */
+    margin: 15px 0;
+}
+
+.container ul {
+    max-height: 200px; /* Limitar altura de la lista */
+    overflow-y: auto; /* Añadir scroll si es necesario */
+    margin-bottom: 20px;
+}
+
+.container .btn, 
+.container .back-button {
+    margin-top: 15px;
+    align-self: center;
+    width: 90%;
+}
+
+@media (max-width: 600px) {
+    .container {
+        width: 95%;
+        padding: 10px;
+    }
+    
+    .finFact-image {
+        max-height: 200px;
+    }
+    
+    .container h2 {
+        font-size: 1.2em;
+    }
+    
+    .container p {
+        font-size: 0.9em;
+    }
+}
+    </style>
+</head>
+<body>
+    <!-- Pantalla de Registro -->
+    <div id="registerPage" style="display: none;" class="container">
+        <img src="Logo.png" alt="Logo Investio Me" class="logo">
+        <h2>Registrarse</h2>
+        <input type="text" placeholder="Usuario" id="registerUsername">
+        <input type="password" placeholder="Contraseña" id="registerPassword">
+        <button onclick="register()">Crear Cuenta</button>
+        <p>¿Ya tienes una cuenta? <a href="#" onclick="showPage('loginPage')">Inicia Sesión</a></p>
+    </div>
+
+    <!-- Pantalla de Inicio de Sesión -->
+    <div id="loginPage" class="container">
+        <img src="Logo.png" alt="Logo Investio Me" class="logo">
+        <h1>Bienvenido</h1>
+        <p>Aprende sobre finanzas de forma divertida con Finn</p>
+        <input type="text" placeholder="Usuario" id="username">
+        <input type="password" placeholder="Contraseña" id="password">
+        <button onclick="login()">Entrar</button>
+        <p>¿No tienes una cuenta? <a href="#" onclick="showPage('registerPage')">Regístrate</a></p>
+    </div>
+
+    <!-- Página Principal -->
+    <div id="homePage" style="display: none;" class="container home-container">
+        <img src="Logo.png" alt="Logo Investio Me" class="logo">
+        <h2>¡Bienvenido a Investio Me!</h2>
+        
+        <div class="coin-count">
+            <img src="Moneda virtual.png" alt="Moneda" id="coinIcon">
+            <span id="coinCount">200 monedas</span>
+            <span class="premium-badge">GRATIS</span>
+        </div>
+        
+        <!-- Sección de progreso -->
+        <div class="progress-bar-container">
+            <div class="progress-bar" style="width: 33%"></div>
+        </div>
+        <p>33% completado</p>
+        
+        <div class="progress-cards">
+            <div class="progress-card">
+                <h3>Módulos</h3>
+                <div class="percentage">2/6</div>
+            </div>
+            <div class="progress-card">
+                <h3>Quizes</h3>
+                <div class="percentage">2/6</div>
+            </div>
+        </div>
+        
+        <!-- Módulos -->
+        <h3 style="margin-top: 20px; color: #4a5568; text-align: left;">Tus módulos</h3>
+        <div class="module-dropdown">
+            <button onclick="toggleDropdown()" class="module-dropdown-btn">
+                <span><span class="btn-icon">📚</span> Módulos FinFacts</span>
+                <span>▼</span>
+            </button>
+            <div id="moduleDropdown" class="module-dropdown-content">
+                <button onclick="showPage('finFact1Page')"><span class="btn-icon">💰</span> FinFact 1: Conceptos Básicos</button>
+                <button onclick="showPage('finFact2Page')"><span class="btn-icon">📊</span> FinFact 2: Presupuesto</button>
+                <button onclick="showPage('finFact3Page')"><span class="btn-icon">📈</span> FinFact 3: Ahorro</button>
+                <button onclick="showPage('finFact4Page')"><span class="btn-icon">🏦</span> FinFact 4: Deudas</button>
+                <button onclick="showPage('finFact5Page')"><span class="btn-icon">📝</span> FinFact 5: Impuestos</button>
+                <button onclick="showPage('finFact6Page')"><span class="btn-icon">🔒</span> FinFact 6: Seguros</button>
+            </div>
+        </div>
+        
+        <!-- Herramientas -->
+        <h3 style="margin-top: 20px; color: #4a5568; text-align: left;">Herramientas</h3>
+        <div class="button-container">
+            <button onclick="showPage('registroPage')"><span class="btn-icon">📝</span> Registro de Finanzas</button>
+        </div>
+        
+        <img src="Finn.png" alt="Finn la mascota" class="mascot" id="finnMascot">
+    </div>
+
+    <!-- FinFact 1 -->
+    <div id="finFact1Page" style="display: none;" class="container">
+        <h2>FinFact 1: Conceptos Básicos</h2>
+        
+        <div class="finn-story-container">
+    <div class="finn-dialogue">
+        <div class="story-bubbles">
+            <div class="story-bubble active" data-order="1">
+                <img src="Finn.png" alt="Finn" class="finn-avatar">
+                <div class="dialogue-text">
+                    <p><strong>¡Hola amigo!</strong> Hoy vamos a aprender sobre los <strong>ingresos</strong> y <strong>gastos</strong>.</p>
+                </div>
+            </div>
+            <div class="story-bubble" data-order="2">
+                <img src="Finn.png" alt="Finn" class="finn-avatar">
+                <div class="dialogue-text">
+                    <p><strong>Ingresos:</strong> Es el dinero que recibes. Por ejemplo, si haces tareas para tus vecinos y te pagan, ¡eso son ingresos!</p>
+                </div>
+            </div>
+            <div class="story-bubble" data-order="3">
+                <img src="Finn.png" alt="Finn" class="finn-avatar">
+                <div class="dialogue-text">
+                    <p><strong>Gastos:</strong> Es el dinero que gastas. Si compras un helado o un juguete, ese es un gasto.</p>
+                </div>
+            </div>
+            <div class="story-bubble" data-order="4">
+                <img src="Finn.png" alt="Finn" class="finn-avatar">
+                <div class="dialogue-text">
+                    <p>Pregúntate: ¿De dónde viene mi dinero? ¿En qué gasto más? ¿Es necesario?</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="story-navigation">
+        <div class="story-progress">
+            <div class="progress-bar"></div>
+        </div>
+        <button class="story-prev">❮</button>
+        <button class="story-next">❯</button>
+    </div>
+</div>
+
+        
+        <button onclick="showQuiz('quiz1')">Tomar Quiz</button>
+        <button onclick="showPage('finnGame1')" class="learn-with-finn-btn">
+            <img src="Finn.png" alt="Finn Icon"> Aprende con Finn
+        </button>
+        <button class="back-button" onclick="showPage('homePage')">Regresar</button>
+    </div>
+
+    <!-- Quiz 1 -->
+    <div id="quiz1" style="display: none;" class="container">
+        <h2>Quiz: Conceptos Básicos</h2>
+        <div id="quiz1Questions">
+            <p><strong>1. ¿Qué es un ingreso?</strong></p>
+            <button onclick="checkAnswer(1, 'a', 1)" class="quiz-btn">a) Dinero que recibes</button>
+            <button onclick="checkAnswer(1, 'b', 1)" class="quiz-btn">b) Dinero que gastas</button>
+            <button onclick="checkAnswer(1, 'c', 1)" class="quiz-btn">c) Dinero que ahorras</button>
+            
+            <p><strong>2. Si compras un videojuego, esto es un:</strong></p>
+            <button onclick="checkAnswer(2, 'a', 1)" class="quiz-btn">a) Ingreso</button>
+            <button onclick="checkAnswer(2, 'b', 1)" class="quiz-btn">b) Gasto</button>
+            <button onclick="checkAnswer(2, 'c', 1)" class="quiz-btn">c) Ahorro</button>
+        </div>
+        <div id="quiz1Result" style="display: none;">
+            <img src="Bien.png" alt="Resultado quiz" class="finFact-image">
+            <h3>¡Felicidades!</h3>
+            <p>Has completado el primer módulo.</p>
+            <p>Monedas ganadas: <strong>+50</strong></p>
+            <button onclick="showPage('homePage')" class="back-button">Volver al inicio</button>
+        </div>
+    </div>
+
+    <!-- Juego con Finn para FinFact 1 -->
+    <div id="finnGame1" style="display: none;" class="container">
+        <h2>¡Aprende con Finn!</h2>
+        <div class="finn-game-container">
+            <div class="finn-game-header">
+                <img src="Finn2.png" alt="Finn la mascota">
+                <div class="finn-speech-bubble">
+                    <p id="finnSpeech">¡Hola! Soy Finn, tu guía financiero. Vamos a aprender sobre ingresos y gastos jugando. Te mostraré imágenes y tú me dirás si representan un INGRESO o un GASTO. ¿Listo?</p>
+                </div>
+            </div>
+            
+            <div class="finn-game-progress">
+                <div id="progressBar" class="finn-game-progress-bar" style="width: 0%"></div>
+            </div>
+            
+            <div id="finnGameContent" class="finn-game-content">
+                <button onclick="startFinnGame()" class="finn-button">¡Comenzar!</button>
+            </div>
+            
+            <div id="finnGameOptions" class="finn-game-options" style="display: none;">
+                <!-- Las opciones se cargarán dinámicamente -->
+            </div>
+            
+            <div id="finnGameFeedback" class="finn-game-feedback" style="display: none;"></div>
+            
+            <div id="finnGameButtons" class="finn-game-buttons" style="display: none;">
+                <button onclick="checkFinnAnswer('ingreso')" class="finn-button">INGRESO</button>
+                <button onclick="checkFinnAnswer('gasto')" class="finn-button">GASTO</button>
+            </div>
+        </div>
+        <button class="back-button" onclick="showPage('finFact1Page')">Regresar</button>
+    </div>
+
+    <!-- Apartado de Registro -->
+    <div id="registroPage" style="display: none;" class="container">
+        <h2>Registro de Ingresos y Gastos</h2>
+        
+        <div class="balance-container">
+            <h3>Tu balance</h3>
+            <p id="balanceAmount">$0.00</p>
+        </div>
+        
+        <input type="text" placeholder="Descripción" id="registroDescripcion">
+        <input type="number" placeholder="Cantidad" id="registroCantidad">
+        <select id="registroTipo">
+            <option value="ingreso">Ingreso</option>
+            <option value="gasto">Gasto</option>
+        </select>
+        <button onclick="agregarRegistro()">Agregar</button>
+        <table class="registro-table">
+            <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
+                    <th>Tipo</th>
+                </tr>
+            </thead>
+            <tbody id="registroTabla">
+            </tbody>
+        </table>
+        <button class="back-button" onclick="showPage('homePage')">Regresar</button>
+    </div>
+
+    <!-- FinFact 2 -->
+    <div id="finFact2Page" style="display: none;" class="container">
+        <h2>FinFact 2: Presupuesto Personal</h2>
+        <img src="Finfact2.webp" alt="Presupuesto Personal" class="finFact-image">
+        <p><strong>¿Qué es un presupuesto?</strong></p>
+        <p>Un presupuesto es como un plan que te dice cuánto dinero tienes y en qué lo vas a gastar.</p>
+        <h3>Preguntas para reflexionar:</h3>
+        <ul>
+            <li>¿Cuánto dinero tengo al mes?</li>
+            <li>¿Cómo puedo dividirlo para no quedarme sin dinero?</li>
+        </ul>
+        <button onclick="showQuiz('quiz2')" class="btn">Tomar Quiz</button>
+        <button class="back-button" onclick="showPage('homePage')">Regresar</button>
+    </div>
+
+    <!-- FinFact 3 -->
+    <div id="finFact3Page" style="display: none;" class="container">
+        <h2>FinFact 3: Ahorro e Inversión</h2>
+        <img src="Finfact3.webp" alt="Ahorro e Inversión" class="finFact-image">
+        <p><strong>¿Por qué es importante ahorrar?</strong></p>
+        <p>Ahorrar es guardar dinero para el futuro. Puedes usarlo para comprar algo grande, como una bicicleta.</p>
+        <p><strong>¿Qué es invertir?</strong></p>
+        <p>Invertir es usar tu dinero para hacer que crezca. Por ejemplo, si pones tu dinero en un banco, te pagarán un poco más por dejarlo ahí.</p>
+        <h3>Preguntas para reflexionar:</h3>
+        <ul>
+            <li>¿Qué quiero comprar en el futuro?</li>
+            <li>¿Cuánto puedo ahorrar cada semana?</li>
+        </ul>
+        <button onclick="showQuiz('quiz3')" class="btn">Tomar Quiz</button>
+        <button class="back-button" onclick="showPage('homePage')">Regresar</button>
+    </div>
+
+    <!-- FinFact 4 -->
+    <div id="finFact4Page" style="display: none;" class="container">
+        <h2>FinFact 4: Deudas y Préstamos</h2>
+        <img src="Finfact4.webp" alt="Deudas y Préstamos" class="finFact-image">
+        <p><strong>¿Qué es una deuda?</strong></p>
+        <p>Una deuda es cuando tomas dinero prestado y tienes que devolverlo en el futuro. Puede ser de un amigo o de un banco.</p>
+        <p><strong>¿Qué es un préstamo?</strong></p>
+        <p>Un préstamo es una cantidad de dinero que alguien te da y que necesitas devolver en un plazo determinado, normalmente con intereses.</p>
+        <h3>Preguntas para reflexionar:</h3>
+        <ul>
+            <li>¿En qué situaciones es bueno pedir prestado?</li>
+            <li>¿Cómo puedo evitar endeudarme innecesariamente?</li>
+        </ul>
+        <button onclick="showQuiz('quiz4')" class="btn">Tomar Quiz</button>
+        <button class="back-button" onclick="showPage('homePage')">Regresar</button>
+    </div>
+
+    <!-- FinFact 5 -->
+    <div id="finFact5Page" style="display: none;" class="container">
+        <h2>FinFact 5: Impuestos y Contribuciones</h2>
+        <img src="Finfact5.webp" alt="Impuestos y Contribuciones" class="finFact-image">
+        <p><strong>¿Qué son los impuestos?</strong></p>
+        <p>Los impuestos son cantidades de dinero que las personas y empresas pagan al gobierno. Sirven para financiar servicios públicos como escuelas y hospitales.</p>
+        <p><strong>¿Por qué son importantes?</strong></p>
+        <p>Los impuestos ayudan a mantener en funcionamiento muchas cosas que usamos todos los días, como las calles y los parques.</p>
+        <h3>Preguntas para reflexionar:</h3>
+        <ul>
+            <li>¿Qué servicios públicos conozco que dependen de los impuestos?</li>
+            <li>¿Cómo me afectan los impuestos en mi vida diaria?</li>
+        </ul>
+        <button onclick="showQuiz('quiz5')" class="btn">Tomar Quiz</button>
+        <button class="back-button" onclick="showPage('homePage')">Regresar</button>
+    </div>
+
+    <!-- FinFact 6 -->
+    <div id="finFact6Page" style="display: none;" class="container">
+        <h2>FinFact 6: Seguro y Protección Financiera</h2>
+        <img src="Finfact6.webp" alt="Seguro y Protección Financiera" class="finFact-image">
+        <p><strong>¿Qué es un seguro?</strong></p>
+        <p>Un seguro es algo que compras para protegerte financieramente de eventos inesperados, como accidentes o enfermedades.</p>
+        <p><strong>¿Por qué es importante?</strong></p>
+        <p>Un seguro puede ayudarte a cubrir gastos grandes cuando suceden cosas inesperadas, evitando que pierdas mucho dinero.</p>
+        <h3>Preguntas para reflexionar:</h3>
+        <ul>
+            <li>¿Qué tipo de seguros existen y cómo me protegen?</li>
+            <li>¿Es importante tener seguro para ciertas cosas en mi vida?</li>
+        </ul>
+        <button onclick="showQuiz('quiz6')" class="btn">Tomar Quiz</button>
+        <button class="back-button" onclick="showPage('homePage')">Regresar</button>
+    </div>
+
+    <!-- Quiz 2-6 (Templates) -->
+    <div id="quiz2" style="display: none;" class="container">
+        <h2>Quiz: Presupuesto Personal</h2>
+        <div id="quiz2Questions">
+            <p><strong>1. ¿Para qué sirve un presupuesto?</strong></p>
+            <button onclick="checkAnswer(1, 'a', 2)" class="quiz-btn">a) Para gastar más dinero</button>
+            <button onclick="checkAnswer(1, 'b', 2)" class="quiz-btn">b) Para planificar tus ingresos y gastos</button>
+            <button onclick="checkAnswer(1, 'c', 2)" class="quiz-btn">c) Para pedir préstamos</button>
+            
+            <p><strong>2. Un buen presupuesto debe:</strong></p>
+            <button onclick="checkAnswer(2, 'a', 2)" class="quiz-btn">a) Incluir solo gastos</button>
+            <button onclick="checkAnswer(2, 'b', 2)" class="quiz-btn">b) Tener más gastos que ingresos</button>
+            <button onclick="checkAnswer(2, 'c', 2)" class="quiz-btn">c) Balancear ingresos y gastos</button>
+        </div>
+        <div id="quiz2Result" style="display: none;">
+            <img src="Bien.png" alt="Resultado quiz" class="finFact-image">
+            <h3>¡Felicidades!</h3>
+            <p>Has completado el segundo módulo.</p>
+            <p>Monedas ganadas: <strong>+50</strong></p>
+            <button onclick="showPage('homePage')" class="back-button">Volver al inicio</button>
+        </div>
+    </div>
+
+    <script>
+
+function toggleDropdown() {
+    let dropdown = document.getElementById("moduleDropdown");
+    dropdown.style.display = (dropdown.style.display === "block") ? "none" : "block";
+}
+
+        let userCoins = 200;
+        
+        function showPage(pageId) {
+            const pages = document.querySelectorAll('.container');
+            pages.forEach(page => page.style.display = 'none');
+            document.getElementById(pageId).style.display = 'block';
+            
+            if (pageId === 'homePage') {
+                document.getElementById('coinCount').textContent = userCoins + ' monedas';
+            }
+        }
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const storedUsername = localStorage.getItem('username');
+            const storedPassword = localStorage.getItem('password');
+
+            if (username === storedUsername && password === storedPassword) {
+                alert("Inicio de sesión exitoso");
+                showPage('homePage');
+            } else {
+                alert("Usuario o contraseña incorrectos");
+            }
+        }
+
+        function register() {
+            const username = document.getElementById('registerUsername').value;
+            const password = document.getElementById('registerPassword').value;
+
+            if (username && password) {
+                localStorage.setItem('username', username);
+                localStorage.setItem('password', password);
+                alert("Registro exitoso");
+                showPage('loginPage');
+            } else {
+                alert("Por favor completa todos los campos");
+            }
+        }
+
+        function agregarRegistro() {
+            const descripcion = document.getElementById('registroDescripcion').value;
+            const cantidad = document.getElementById('registroCantidad').value;
+            const tipo = document.getElementById('registroTipo').value;
+            
+            if (!descripcion || !cantidad || isNaN(cantidad) || cantidad <= 0) {
+                alert("Por favor, completa todos los campos con datos válidos.");
+                return;
+            }
+
+            const tabla = document.getElementById('registroTabla');
+            const fila = tabla.insertRow();
+            fila.innerHTML = `
+                <td>${descripcion}</td>
+                <td>$${parseFloat(cantidad).toFixed(2)}</td>
+                <td>${tipo.charAt(0).toUpperCase() + tipo.slice(1)}</td>
+            `;
+
+            actualizarBalance(tipo, parseFloat(cantidad));
+
+            document.getElementById('registroDescripcion').value = '';
+            document.getElementById('registroCantidad').value = '';
+            document.getElementById('registroTipo').value = 'ingreso';
+        }
+
+        function actualizarBalance(tipo, cantidad) {
+            let balance = parseFloat(localStorage.getItem('balance') || '0');
+            balance += tipo === 'ingreso' ? cantidad : -cantidad;
+            localStorage.setItem('balance', balance);
+            
+            const balanceElement = document.getElementById('balanceAmount');
+            balanceElement.textContent = '$' + balance.toFixed(2);
+            balanceElement.style.color = balance >= 0 ? '#2a9d8f' : '#e76f51';
+        }
+
+        function showQuiz(quizId) {
+            showPage(quizId);
+        }
+
+        function checkAnswer(question, option, quizNum) {
+            // Respuestas correctas para cada quiz
+            const correctAnswers = {
+                1: { 1: 'a', 2: 'b' },
+                2: { 1: 'b', 2: 'c' },
+                3: { 1: 'b', 2: 'c' }, // Suponiendo respuestas para quiz 3-6
+                4: { 1: 'a', 2: 'b' },
+                5: { 1: 'c', 2: 'a' },
+                6: { 1: 'b', 2: 'c' }
+            };
+            
+            const isCorrect = correctAnswers[quizNum][question] === option;
+            
+            if (isCorrect) {
+                alert("¡Respuesta correcta!");
+            } else {
+                alert("Respuesta incorrecta. Intenta de nuevo.");
+                return;
+            }
+            
+            // Si respondió a todas las preguntas correctamente (simplificado para demo)
+            if (question === 2 && isCorrect) {
+                document.getElementById(`quiz${quizNum}Questions`).style.display = 'none';
+                document.getElementById(`quiz${quizNum}Result`).style.display = 'block';
+                
+                // Añadir monedas
+                userCoins += 50;
+            }
+        }
+
+ // Juego de Finn para FinFact 1: Ingresos vs Gastos
+        let currentFinnQuestion = 0;
+        let finnGameScore = 0;
+        const finnGameQuestions = [
+            {
+                description: "Recibir tu paga semanal",
+                image: "Finn.png", // Usamos Finn como imagen placeholder
+                answer: "ingreso"
+            },
+            {
+                description: "Comprar un juguete",
+                image: "Finn.png",
+                answer: "gasto"
+            },
+            {
+                description: "Pagar por un helado",
+                image: "Finn.png",
+                answer: "gasto"
+            },
+            {
+                description: "Dinero de cumpleaños de tus abuelos",
+                image: "Finn.png",
+                answer: "ingreso"
+            },
+            {
+                description: "Comprar comida para tu mascota",
+                image: "Finn.png",
+                answer: "gasto"
+    }
+];
+function startFinnGame() {
+    currentFinnQuestion = 0;
+    finnGameScore = 0;
+    document.getElementById("finnGameContent").style.display = "none";
+    document.getElementById("finnGameOptions").style.display = "block";
+    document.getElementById("finnGameButtons").style.display = "flex";
+    displayFinnQuestion();
+}
+
+function displayFinnQuestion() {
+    const question = finnGameQuestions[currentFinnQuestion];
+    document.getElementById("finnSpeech").textContent = question.description + " - ¿Es un INGRESO o un GASTO?";
+    
+    // Actualizar la barra de progreso
+    const progress = ((currentFinnQuestion) / finnGameQuestions.length) * 100;
+    document.getElementById("progressBar").style.width = progress + "%";
+    
+    document.getElementById("finnGameFeedback").style.display = "none";
+}
+
+function checkFinnAnswer(answer) {
+    const correctAnswer = finnGameQuestions[currentFinnQuestion].answer;
+    const isCorrect = answer === correctAnswer;
+    
+    const feedbackDiv = document.getElementById("finnGameFeedback");
+    feedbackDiv.style.display = "block";
+    
+    if (isCorrect) {
+        feedbackDiv.innerHTML = "<p class='correct'>¡Correcto! 👍</p>";
+        finnGameScore++;
+    } else {
+        feedbackDiv.innerHTML = `<p class='incorrect'>Incorrecto. La respuesta correcta es: ${correctAnswer === "ingreso" ? "INGRESO" : "GASTO"} 👎</p>`;
+    }
+    
+    // Esperar un momento y mostrar la siguiente pregunta
+    setTimeout(() => {
+        currentFinnQuestion++;
+        
+        if (currentFinnQuestion < finnGameQuestions.length) {
+            displayFinnQuestion();
+        } else {
+            finishFinnGame();
+        }
+    }, 1500);
+}
+
+function finishFinnGame() {
+    document.getElementById("finnGameButtons").style.display = "none";
+    document.getElementById("finnGameOptions").style.display = "none";
+    
+    const resultMessage = `
+        <h3>¡Juego terminado!</h3>
+        <p>Tu puntuación: ${finnGameScore} de ${finnGameQuestions.length}</p>
+        <button onclick="startFinnGame()" class="finn-button">Jugar de nuevo</button>
+        <button onclick="showPage('finFact1Page')" class="finn-button">Volver al FinFact</button>
+    `;
+    
+    document.getElementById("finnGameContent").innerHTML = resultMessage;
+    document.getElementById("finnGameContent").style.display = "block";
+    
+    // Actualizar la barra de progreso al 100%
+    document.getElementById("progressBar").style.width = "100%";
+    
+    // Dar monedas al usuario basado en su puntuación
+    const coinsEarned = Math.round((finnGameScore / finnGameQuestions.length) * 30);
+    if (coinsEarned > 0) {
+        userCoins += coinsEarned;
+        document.getElementById("finnSpeech").textContent = `¡Felicidades! Has ganado ${coinsEarned} monedas. Sigue aprendiendo para ganar más.`;
+    } else {
+        document.getElementById("finnSpeech").textContent = "¡Sigue practicando! La próxima vez ganarás monedas.";
+    }
+}
+
+// Añadir estilos CSS específicos para el juego de Finn
+document.head.insertAdjacentHTML('beforeend', `
+<style>
+.finn-game-container {
+    margin: 20px 0;
+    position: relative;
+}
+
+.finn-game-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.finn-game-header img {
+    width: 120px;
+    height: auto;
+}
+
+.finn-speech-bubble {
+    background-color: #f0f9ff;
+    border: 2px solid #2a9d8f;
+    border-radius: 20px;
+    padding: 10px 15px;
+    margin-left: 10px;
+    position: relative;
+    flex: 1;
+}
+
+.finn-speech-bubble:before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-right: 10px solid #2a9d8f;
+    border-bottom: 10px solid transparent;
+}
+
+.finn-game-progress {
+    height: 10px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.finn-game-progress-bar {
+    height: 100%;
+    background-color: #2a9d8f;
+    transition: width 0.5s ease;
+}
+
+.finn-game-content {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.finn-game-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.finn-game-feedback {
+    text-align: center;
+    margin: 15px 0;
+    font-weight: bold;
+}
+
+.finn-game-feedback .correct {
+    color: #2a9d8f;
+}
+
+.finn-game-feedback .incorrect {
+    color: #e76f51;
+}
+
+.finn-game-buttons {
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+}
+
+.finn-button {
+    background-color: #2a9d8f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.finn-button:hover {
+    background-color: #21867a;
+}
+</style>
+`);
+
+// Inicializar el balance cuando se carga la página de registro
+window.addEventListener('DOMContentLoaded', () => {
+    const storedBalance = localStorage.getItem('balance');
+    if (storedBalance) {
+        document.getElementById('balanceAmount').textContent = '$' + parseFloat(storedBalance).toFixed(2);
+        document.getElementById('balanceAmount').style.color = parseFloat(storedBalance) >= 0 ? '#2a9d8f' : '#e76f51';
+    }
+    
+    // Evento para la mascota Finn
+    const finnMascot = document.getElementById('finnMascot');
+    if (finnMascot) {
+        finnMascot.addEventListener('click', () => {
+            showPage('finnGame1');
+        });
+    }
+});
+        document.addEventListener('DOMContentLoaded', () => {
+            localStorage.setItem('balance', localStorage.getItem('balance') || '0');
+            const balance = parseFloat(localStorage.getItem('balance'));
+            if (document.getElementById('balanceAmount')) {
+                document.getElementById('balanceAmount').textContent = '$' + balance.toFixed(2);
+            }
+            
+            // Crear secciones de resultados para quizes que no las tienen
+            for (let i = 3; i <= 6; i++) {
+                if (!document.getElementById(`quiz${i}Result`)) {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.id = `quiz${i}Result`;
+                    resultDiv.style.display = 'none';
+                    resultDiv.innerHTML = `
+                        <img src="bien.jpg" alt="Resultado quiz" class="finFact-image">
+                        <h3>¡Felicidades!</h3>
+                        <p>Has completado el módulo ${i}.</p>
+                        <p>Monedas ganadas: <strong>+50</strong></p>
+                        <button onclick="showPage('homePage')" class="back-button">Volver al inicio</button>
+                    `;
+                    
+                    if (document.getElementById(`quiz${i}`)) {
+                        document.getElementById(`quiz${i}`).appendChild(resultDiv);
+                    }
+                }
+            }
+        });
+// Story Navigation
+document.addEventListener('DOMContentLoaded', () => {
+    const storyBubbles = document.querySelectorAll('.story-bubble');
+    const progressBar = document.querySelector('.story-progress .progress-bar');
+    const prevButton = document.querySelector('.story-prev');
+    const nextButton = document.querySelector('.story-next');
+    let currentStoryIndex = 0;
+
+    function updateStory(newIndex) {
+        // Desactivar burbuja actual
+        storyBubbles[currentStoryIndex].classList.remove('active');
+        
+        // Actualizar índice
+        currentStoryIndex = (newIndex + storyBubbles.length) % storyBubbles.length;
+        
+        // Activar nueva burbuja
+        storyBubbles[currentStoryIndex].classList.add('active');
+        
+        // Actualizar barra de progreso
+        progressBar.style.width = `${((currentStoryIndex + 1) / storyBubbles.length) * 100}%`;
+    }
+
+    // Botón siguiente
+    nextButton.addEventListener('click', () => {
+        updateStory(currentStoryIndex + 1);
+    });
+
+    // Botón anterior
+    prevButton.addEventListener('click', () => {
+        updateStory(currentStoryIndex - 1);
+    });
+});
+
+    </script>
+</body>
+</html>
